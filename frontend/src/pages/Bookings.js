@@ -1,6 +1,6 @@
 import React from 'react';
 
-function Bookings() {
+const Bookings = () => {
   return <h1>The Bookings Page</h1>;
 }
 
