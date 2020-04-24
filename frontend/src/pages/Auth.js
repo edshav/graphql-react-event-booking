@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 
 import './Auth.css';
+import AuthContext from '../contexts/auth-context';
 
 const Auth = () => {
   const [inputs, setInputs] = useState({ email: '', password: '' });
   const [isLogin, setIsLogin] = useState(true);
+  const context = useContext(AuthContext);
 
   const switchMode = () => {
     setIsLogin((prevState) => !prevState);
@@ -51,8 +53,16 @@ const Auth = () => {
         }
         return res.json();
       })
-      .then((data) => {
-        console.log(data);
+      .then((resData) => {
+        console.log(resData);
+        if (resData.data.login.token) {
+          console.log(context.login);
+          context.login(
+            resData.data.login.token,
+            resData.data.login.userId,
+            resData.data.login.tokenExpiration
+          );
+        }
       })
       .catch((error) => {
         console.log(error);
@@ -81,7 +91,7 @@ const Auth = () => {
         />
       </div>
       <div className="form-control">
-        <label htmlFor="password">E-Mail</label>
+        <label htmlFor="password">Password</label>
         <input
           type="password"
           name="password"
