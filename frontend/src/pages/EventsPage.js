@@ -16,10 +16,14 @@ const EventsPage = () => {
   const priceElRef = useRef(null);
   const dateElRef = useRef(null);
   const descriptionElRef = useRef(null);
+  const isActive = useRef(true);
   const context = useContext(AuthContext);
 
   useEffect(() => {
     fetchEvents();
+    return () => {
+      isActive.current = false;
+    };
   }, []);
 
   const startCreateEventHandler = () => {
@@ -59,7 +63,7 @@ const EventsPage = () => {
             description
           }
         }
-    `,
+      `,
     };
 
     fetch('http://localhost:8000/graphql', {
@@ -71,7 +75,6 @@ const EventsPage = () => {
       },
     })
       .then((res) => {
-        console.log(res.status);
         if (res.status !== 200 && res.status !== 201) {
           throw new Error('Failed!');
         }
@@ -106,7 +109,7 @@ const EventsPage = () => {
             }
           }
         }
-    `,
+      `,
     };
 
     fetch('http://localhost:8000/graphql', {
@@ -124,13 +127,17 @@ const EventsPage = () => {
         return res.json();
       })
       .then((resData) => {
-        const { events } = resData.data;
-        setEvents(events);
-        setIsLoading(false);
+        if (isActive.current) {
+          const { events } = resData.data;
+          setEvents(events);
+          setIsLoading(false);
+        }
       })
       .catch((error) => {
         console.log(error);
-        setIsLoading(false);
+        if (isActive.current) {
+          setIsLoading(false);
+        }
       });
   };
 
@@ -138,7 +145,46 @@ const EventsPage = () => {
     setSelectedEvent(events.find(({ _id }) => _id === eventId));
   };
 
-  const bookEventHandler = () => {};
+  const bookEventHandler = () => {
+    if (!context.token) {
+      setSelectedEvent(null);
+      return;
+    }
+
+    const requestBody = {
+      query: `
+        mutation {
+          bookEvent(eventId: "${selectedEvent._id}") {
+            _id
+            createdAt
+            updatedAt
+          }
+        }
+      `,
+    };
+
+    fetch('http://localhost:8000/graphql', {
+      method: 'POST',
+      body: JSON.stringify(requestBody),
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${context.token}`,
+      },
+    })
+      .then((res) => {
+        if (res.status !== 200 && res.status !== 201) {
+          throw new Error('Failed!');
+        }
+        return res.json();
+      })
+      .then((resData) => {
+        console.log(resData);
+        setSelectedEvent(null);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
 
   return (
     <React.Fragment>
@@ -193,7 +239,7 @@ const EventsPage = () => {
             canConfirm
             onCancel={onModalCancel}
             onConfirm={bookEventHandler}
-            confirmText="Book"
+            confirmText={context.token ? 'Book' : 'Confirm'}
           >
             <h1>{selectedEvent.title}</h1>
             <h2>{`$${selectedEvent.price} - ${new Date(

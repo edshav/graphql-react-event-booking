@@ -12,7 +12,6 @@ const EventItem = ({
   onSelectEvent,
 }) => {
   const { userId } = useContext(AuthContext);
-  console.log(typeof onSelectEvent);
 
   const onClickHandler = (eventId) => () => onSelectEvent(eventId);
   return (

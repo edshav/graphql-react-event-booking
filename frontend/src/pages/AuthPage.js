@@ -47,16 +47,13 @@ const AuthPage = () => {
       },
     })
       .then((res) => {
-        console.log(res.status);
         if (res.status !== 200 && res.status !== 201) {
           throw new Error('Failed!');
         }
         return res.json();
       })
       .then((resData) => {
-        console.log(resData);
         if (resData.data.login && resData.data.login.token) {
-          console.log(context.login);
           context.login(
             resData.data.login.token,
             resData.data.login.userId,
