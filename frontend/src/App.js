@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import './App.css';
 import { BrowserRouter, Route, Redirect, Switch } from 'react-router-dom';
 
-import AuthPage from './pages/Auth';
-import EventsPage from './pages/Events';
-import BookingsPage from './pages/Bookings';
+import AuthPage from './pages/AuthPage';
+import EventsPage from './pages/EventsPage';
+import BookingsPage from './pages/BookingsPage';
 import MainNavigation from './components/Navigation/MainNavigation';
 import AuthContext from './contexts/auth-context';
 

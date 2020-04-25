@@ -1,13 +1,17 @@
 import React, { useState, useRef, useContext, useEffect } from 'react';
 
-import './Events.css';
+import './EventsPage.css';
 import Modal from '../components/Modal/Modal';
 import Backdrop from '../components/Backdrop/Backdrop';
 import AuthContext from '../contexts/auth-context';
+import EventList from '../components/events/EventList/EventList';
+import Spinner from '../components/Spinner/Spinner';
 
-const Events = () => {
+const EventsPage = () => {
   const [creating, setCreating] = useState(false);
   const [events, setEvents] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
   const titleElRef = useRef(null);
   const priceElRef = useRef(null);
   const dateElRef = useRef(null);
@@ -24,6 +28,7 @@ const Events = () => {
 
   const onModalCancel = () => {
     setCreating(false);
+    setSelectedEvent(null);
   };
 
   const onModalConfirm = () => {
@@ -52,10 +57,6 @@ const Events = () => {
             price
             date
             description
-            creator {
-              _id
-              email
-            }
           }
         }
     `,
@@ -77,7 +78,12 @@ const Events = () => {
         return res.json();
       })
       .then((resData) => {
-        fetchEvents();
+        console.log(resData);
+        const event = {
+          ...resData.data.createEvent,
+          creator: { _id: context.userId },
+        };
+        setEvents((prevEvents) => [...prevEvents, event]);
       })
       .catch((error) => {
         console.log(error);
@@ -85,6 +91,7 @@ const Events = () => {
   };
 
   const fetchEvents = () => {
+    setIsLoading(true);
     const requestBody = {
       query: `
         query {
@@ -96,7 +103,6 @@ const Events = () => {
             description
             creator {
               _id
-              email
             }
           }
         }
@@ -120,11 +126,19 @@ const Events = () => {
       .then((resData) => {
         const { events } = resData.data;
         setEvents(events);
+        setIsLoading(false);
       })
       .catch((error) => {
         console.log(error);
+        setIsLoading(false);
       });
   };
+
+  const onSelectEvent = (eventId) => {
+    setSelectedEvent(events.find(({ _id }) => _id === eventId));
+  };
+
+  const bookEventHandler = () => {};
 
   return (
     <React.Fragment>
@@ -137,6 +151,7 @@ const Events = () => {
             canConfirm
             onCancel={onModalCancel}
             onConfirm={onModalConfirm}
+            confirmText="Confirm"
           >
             <form onSubmit={onModalConfirm}>
               <div className="form-control">
@@ -169,6 +184,25 @@ const Events = () => {
           </Modal>
         </React.Fragment>
       )}
+      {selectedEvent && (
+        <React.Fragment>
+          <Backdrop onDismiss={onModalCancel} />
+          <Modal
+            title={selectedEvent.title}
+            canCancel
+            canConfirm
+            onCancel={onModalCancel}
+            onConfirm={bookEventHandler}
+            confirmText="Book"
+          >
+            <h1>{selectedEvent.title}</h1>
+            <h2>{`$${selectedEvent.price} - ${new Date(
+              selectedEvent.date
+            ).toLocaleDateString()}`}</h2>
+            <p>{selectedEvent.description}</p>
+          </Modal>
+        </React.Fragment>
+      )}
       {!!context.token && (
         <div className="events-control">
           <p>Share your own events!</p>
@@ -177,15 +211,13 @@ const Events = () => {
           </button>
         </div>
       )}
-      <ul className="events__list">
-        {events.map(({ _id, title }) => (
-          <li key={_id} className="events__list-item">
-            {title}
-          </li>
-        ))}
-      </ul>
+      {isLoading ? (
+        <Spinner />
+      ) : (
+        <EventList events={events} onSelectEvent={onSelectEvent} />
+      )}
     </React.Fragment>
   );
 };
 
-export default Events;
+export default EventsPage;

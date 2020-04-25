@@ -1,9 +1,9 @@
 import React, { useState, useContext } from 'react';
 
-import './Auth.css';
+import './AuthPage.css';
 import AuthContext from '../contexts/auth-context';
 
-const Auth = () => {
+const AuthPage = () => {
   const [inputs, setInputs] = useState({ email: '', password: '' });
   const [isLogin, setIsLogin] = useState(true);
   const context = useContext(AuthContext);
@@ -55,7 +55,7 @@ const Auth = () => {
       })
       .then((resData) => {
         console.log(resData);
-        if (resData.data.login.token) {
+        if (resData.data.login && resData.data.login.token) {
           console.log(context.login);
           context.login(
             resData.data.login.token,
@@ -111,4 +111,4 @@ const Auth = () => {
   );
 };
 
-export default Auth;
+export default AuthPage;

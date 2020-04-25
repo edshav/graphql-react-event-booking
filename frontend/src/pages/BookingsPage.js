@@ -1,7 +1,7 @@
 import React from 'react';
 
-const Bookings = () => {
+const BookingsPage = () => {
   return <h1>The Bookings Page</h1>;
 }
 
-export default Bookings;
+export default BookingsPage;
