@@ -6,7 +6,7 @@ import AuthContext from '../../contexts/auth-context';
 
 const MainNavigation = () => {
   const context = useContext(AuthContext);
-  console.log()
+  console.log();
   return (
     <header className="main-navigation">
       <div className="main-navigation__logo">
@@ -23,9 +23,12 @@ const MainNavigation = () => {
             <NavLink to="/events">Events</NavLink>
           </li>
           {context.token && (
-            <li>
-              <NavLink to="/bookings">Bookings</NavLink>
-            </li>
+            <React.Fragment>
+              <li>
+                <NavLink to="/bookings">Bookings</NavLink>
+              </li>
+              <button onClick={context.logout}>Logout</button>
+            </React.Fragment>
           )}
         </ul>
       </nav>

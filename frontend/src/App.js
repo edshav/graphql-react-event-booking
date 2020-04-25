@@ -10,6 +10,7 @@ import AuthContext from './contexts/auth-context';
 
 function App() {
   const [auth, setAuth] = useState({ token: null, userId: null });
+
   const login = (token, userId, tokenExpiration) => {
     setAuth({ token, userId });
   };
@@ -26,12 +27,12 @@ function App() {
         <MainNavigation />
         <main className="main-content">
           <Switch>
-            {!auth.token && <Redirect from="/" to="/auth" exact />}
             {auth.token && <Redirect from="/" to="/events" exact />}
             {auth.token && <Redirect from="/auth" to="/events" exact />}
             {!auth.token && <Route path="/auth" component={AuthPage} />}
             <Route path="/events" component={EventsPage} />
             {auth.token && <Route path="/bookings" component={BookingsPage} />}
+            {!auth.token && <Redirect to="/auth" exact />}
           </Switch>
         </main>
       </AuthContext.Provider>
