@@ -34,7 +34,7 @@ const getUser = (userId) => async () => {
     return {
       ...user._doc,
       password: null,
-      createdEvents: eventLoader.loadMany(user._doc.createdEvents),
+      createdEvents: () => eventLoader.loadMany(user._doc.createdEvents),
     };
   } catch (error) {
     throw error;

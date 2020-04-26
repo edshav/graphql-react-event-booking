@@ -39,7 +39,10 @@ const EventsPage = () => {
     setCreating(false);
 
     const title = titleElRef.current.value;
-    const price = parseFloat(priceElRef.current.value).toFixed(2);
+    const price =
+      Math.round(
+        (parseFloat(priceElRef.current.value) + Number.EPSILON) * 100
+      ) / 100;
     const date = dateElRef.current.value;
     const description = descriptionElRef.current.value;
 
@@ -54,8 +57,8 @@ const EventsPage = () => {
 
     const requestBody = {
       query: `
-        mutation {
-          createEvent(eventInput: {title: "${title}", price: ${price}, date: "${date}", description: "${description}"} ) {
+        mutation CreateEvent($title: String!, $price: Float!, $date: String!, $description: String!) {
+          createEvent(eventInput: {title: $title, price: $price, date: $date, description: $description}) {
             _id
             title
             price
@@ -64,6 +67,12 @@ const EventsPage = () => {
           }
         }
       `,
+      variables: {
+        title,
+        price,
+        date,
+        description,
+      },
     };
 
     fetch('http://localhost:8000/graphql', {
@@ -153,14 +162,17 @@ const EventsPage = () => {
 
     const requestBody = {
       query: `
-        mutation {
-          bookEvent(eventId: "${selectedEvent._id}") {
+        mutation BookEvent($id: ID!) {
+          bookEvent(eventId: $id) {
             _id
             createdAt
             updatedAt
           }
         }
       `,
+      variables: {
+        id: selectedEvent._id,
+      },
     };
 
     fetch('http://localhost:8000/graphql', {
